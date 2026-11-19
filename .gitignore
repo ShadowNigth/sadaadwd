@@ -1,0 +1,5 @@
+.godot/
+assets/original/
+*.zip
+__pycache__/
+assets/generated/
