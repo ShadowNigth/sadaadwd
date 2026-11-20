@@ -1,6 +1,6 @@
 # Infección — prototipo Godot 4
 
-Primer prototipo **offline**, inspirado en CS 1.5 y los mods de infección. No es un port completo de Counter-Strike. Incluye una arena de prueba, movimiento FPS, disparos, recarga, 7 bots sencillos y rondas de infección. Si te infectan, pasás al equipo zombi y atacás cuerpo a cuerpo; al terminar la ronda, empieza otra.
+Primer prototipo **offline**, inspirado en CS 1.5 y los mods de infección. No es un port completo de Counter-Strike. Incluye una arena de prueba, movimiento FPS, disparos, recarga, 7 bots sencillos y rondas de infección. Si te infectan, pasás al equipo zombi y atacás cuerpo a cuerpo; al terminar la ronda, empieza otra. Las colisiones de los mapas son de doble cara y, si un personaje cae por un hueco, vuelve a su última posición segura.
 
 ## Ejecutar
 
@@ -86,6 +86,9 @@ godot --headless --path . --editor --quit
 godot --headless --path . --script res://tests/smoke.gd
 # Si convertiste mapa, arma y jugador:
 godot --headless --path . --script res://tests/assets_smoke.gd
+godot --headless --path . --script res://tests/collision_smoke.gd
+godot --headless --path . --script res://tests/all_map_spawns.gd
+godot --headless --path . --script res://tests/hud_smoke.gd
 ```
 
 Las pruebas del conversor se pueden ejecutar sin Godot:

@@ -23,6 +23,8 @@ var reload_time := 0.0
 var pitch := 0.0
 var strafe_sign := 1.0
 var move_speed := 5.5
+var last_safe_position := Vector3.ZERO
+var has_safe_position := false
 const SHOT_DAMAGE := 34.0
 const ZOMBIE_HEALTH := 200.0
 
@@ -140,9 +142,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
 		start_reload()
 
+func place_at(spawn: Vector3) -> void:
+	global_position = spawn
+	velocity = Vector3.ZERO
+	last_safe_position = spawn
+	has_safe_position = true
+
 func _physics_process(delta: float) -> void:
 	if not alive:
 		return
+	# Recovery for gaps or unfinished converted collision: never keep falling forever.
+	if has_safe_position and global_position.y < last_safe_position.y - 12.0:
+		global_position = last_safe_position + Vector3.UP * 0.2
+		velocity = Vector3.ZERO
 	attack_cooldown = maxf(0.0, attack_cooldown - delta)
 	if reload_time > 0.0:
 		reload_time -= delta
@@ -159,6 +171,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		bot_tick(delta)
 	move_and_slide()
+	if is_on_floor():
+		last_safe_position = global_position
+		has_safe_position = true
 
 func player_tick(_delta: float) -> void:
 	var direction := Vector3.ZERO

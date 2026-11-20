@@ -121,8 +121,11 @@ func load_original_map() -> bool:
 func add_map_collision(node: Node) -> void:
 	if node is MeshInstance3D and node.mesh:
 		node.create_trimesh_collision()
+	elif node is CollisionShape3D and node.shape is ConcavePolygonShape3D:
+		# GoldSrc faces can have opposite winding after conversion/import. A one-sided
+		# triangle shape lets players fall through otherwise visible floors.
+		node.shape.backface_collision = true
 	for child in node.get_children():
-		# Collision nodes created above are leaves, so this recursion terminates.
 		add_map_collision(child)
 
 func add_block(at: Vector3, size: Vector3, color: Color) -> void:
@@ -166,8 +169,7 @@ func start_round() -> void:
 	positions.shuffle()
 	for i in range(fighters.size()):
 		var fighter := fighters[i]
-		fighter.global_position = positions[i]
-		fighter.velocity = Vector3.ZERO
+		fighter.place_at(positions[i])
 		fighter.set_team(false)
 		if not fighter.is_player:
 			fighter.visual.visible = true
@@ -252,29 +254,44 @@ func build_ui() -> void:
 	title_label.text = "INFECCIÓN  /  " + map_name.to_upper()
 	timer_label = make_label(root, 24, Color("ffdf95"))
 	timer_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	timer_label.position = Vector2(-220, 12)
-	timer_label.size = Vector2(195, 35)
+	timer_label.offset_left = -220
+	timer_label.offset_top = 12
+	timer_label.offset_right = -25
+	timer_label.offset_bottom = 47
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	banner = make_label(root, 19, Color("f6e5ad"))
 	banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	banner.position = Vector2(-350, 78)
-	banner.size = Vector2(700, 35)
+	banner.offset_left = -350
+	banner.offset_top = 78
+	banner.offset_right = 350
+	banner.offset_bottom = 113
 	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	crosshair = make_label(root, 26, Color.WHITE)
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	crosshair.position = Vector2(-12, -18)
+	crosshair.offset_left = -12
+	crosshair.offset_top = -18
+	crosshair.offset_right = 12
+	crosshair.offset_bottom = 18
 	crosshair.text = "+"
 	status_label = make_label(root, 22, Color("e4f0e8"))
 	status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	status_label.position = Vector2(24, -82)
+	status_label.offset_left = 24
+	status_label.offset_top = -105
+	status_label.offset_right = 640
+	status_label.offset_bottom = -62
 	ammo_label = make_label(root, 22, Color("f9e2a5"))
 	ammo_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	ammo_label.position = Vector2(-265, -82)
-	ammo_label.size = Vector2(240, 36)
+	ammo_label.offset_left = -265
+	ammo_label.offset_top = -105
+	ammo_label.offset_right = -25
+	ammo_label.offset_bottom = -62
 	ammo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	help_label = make_label(root, 14, Color("d1ded9"))
 	help_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	help_label.position = Vector2(24, -38)
+	help_label.offset_left = 24
+	help_label.offset_top = -52
+	help_label.offset_right = 1000
+	help_label.offset_bottom = -8
 	help_label.text = "WASD mover  ·  Espacio saltar  ·  Clic atacar  ·  R recargar  ·  F2 cambiar mapa  ·  Esc cursor"
 
 func make_label(parent: Node, font_size: int, color: Color) -> Label:
