@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Counter-Strike Betas — Museo Wisk3D</title>
+  <meta name="description" content="Port completo de Ch0wW/counterstrike-betas a Wisk3D — Museo interactivo 3D con timeline 1999-2002, laboratorio de armas y shooter GoldSrc." />
+  <link rel="icon" href="/favicon.svg" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="hdr">
+    <div class="brand">
+      <div class="logo">W3D</div>
+      <div>
+        <h1>Counter-Strike <span>Betas</span> — Museo Wisk3D</h1>
+        <small>Port completo de Ch0wW/counterstrike-betas · 1999 → 2002 · Whisk3D/Wisk3D Core</small>
+      </div>
+    </div>
+    <nav id="nav">
+      <button class="pill active" data-view="timeline">Timeline</button>
+      <button class="pill" data-view="museum">Museo 3D</button>
+      <button class="pill" data-view="weapons">Laboratorio de Armas</button>
+      <button class="pill" data-view="maps">Mapas</button>
+      <button class="pill" data-view="shooter">Shooter Demo</button>
+      <button class="pill" data-view="compare">Comparador</button>
+    </nav>
+  </header>
+
+  <!-- Hero con canvas Wisk3D -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <h2>Preservación <em>GoldSrc</em> en Wisk3D</h2>
+        <p>
+          Todas las <strong>23 versiones oficiales pre-1.6</strong> del mod Counter-Strike reimaginadas sobre la abstracción
+          <code style="background:#111;border:1px solid #222;padding:2px 6px;border-radius:6px">w3dEngine</code> de Whisk3D: pipeline unificado sin OpenGL a la vista, materiales con cache por ruta, LOD + VIS por triángulo, sondas de luz/reflejo, audio OpenAL y scripting Lua — ahora en WebGL2.
+          <br><br>
+          Extraído sin modificación desde los installers originales. Faltantes (<b>Beta 1.2, 6.2, 6.7, 6.8…</b>) honrados como memoria.
+        </p>
+        <div class="meta-row">
+          <span class="badge"><strong>23</strong> ramas · 15 preservadas + 6 faltantes + 2 retail duplicadas</span>
+          <span class="badge">HL <strong>1.0.1.6 → 1.1.1.0</strong></span>
+          <span class="badge">Windows ✔ Linux ✔</span>
+          <span class="badge">wisk.json + project.w3d</span>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="enterMuseum">▶ Entrar al Museo 3D</button>
+          <button class="btn btn-ghost" id="playDemo">◎ Probar Shooter</button>
+          <a class="btn btn-ghost" href="https://github.com/Ch0wW/counterstrike-betas" target="_blank" rel="noreferrer">↗ Original</a>
+        </div>
+        <div class="legend" style="margin-top:10px">
+          <span class="kbd">W A S D</span> moverse · <span class="kbd">Mouse</span> mirar · <span class="kbd">Shift</span> correr · <span class="kbd">ESPACIO</span> saltar · <span class="kbd">1-4</span> armas
+        </div>
+      </div>
+      <div class="canvas-wrap" id="heroCanvasWrap" style="height:340px">
+        <canvas id="heroCanvas"></canvas>
+        <div class="canvas-overlay">
+          <span class="chip">◉ w3dEngine::LoadTexture · VBO · LightProbes</span>
+          <span class="chip">◐ stencil mirror · decals · particles</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shell principal -->
+  <div class="shell">
+    <div class="grid">
+      <!-- Sidebar: lista de versiones -->
+      <aside class="side">
+        <div class="side-hd">
+          <h3>Versiones</h3>
+          <span id="verCount" class="badge">23</span>
+        </div>
+        <div style="padding:10px 12px">
+          <input id="search" class="search" placeholder="Buscar versión, mapa, arma… (ej: dust, ak, 6.0)" />
+        </div>
+        <div class="filters">
+          <button class="fchip active" data-filter="all">Todas</button>
+          <button class="fchip" data-filter="beta">Betas</button>
+          <button class="fchip" data-filter="release">Retail</button>
+          <button class="fchip" data-filter="available">Disponibles</button>
+        </div>
+        <div id="verList" class="ver-list"></div>
+      </aside>
+
+      <!-- Contenido -->
+      <main>
+        <!-- Detalle seleccionado -->
+        <section class="panel" id="detailPanel">
+          <div class="panel-hd">
+            <h3 id="detailTitle">Seleccioná una versión</h3>
+            <div style="display:flex;gap:8px">
+              <button class="pill" id="openInTimeline">Ver en Timeline</button>
+              <button class="pill" id="inspectFiles">Ver archivos</button>
+            </div>
+          </div>
+          <div class="panel-bd">
+            <div id="detailBody" class="detail-grid"></div>
+          </div>
+        </section>
+
+        <!-- Vistas -->
+        <section id="view-timeline" class="panel" style="margin-top:14px">
+          <div class="panel-hd">
+            <h3>Timeline — 19 Jun 1999 → 12 Jun 2002</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge">HLDS 1.0.1.6 naranja · 1.1.1.0 celeste</span>
+              <button class="pill" id="toggleMissing">Ocultar faltantes</button>
+            </div>
+          </div>
+          <div class="panel-bd"><div id="timeline" class="timeline"></div></div>
+        </section>
+
+        <section id="view-museum" class="panel" style="margin-top:14px;display:none">
+          <div class="panel-hd">
+            <h3>Museo 3D — Corredor de las Betas (Wisk3D Scene + VIS)</h3>
+            <div style="display:flex;gap:8px">
+              <button class="pill" id="museumEnter">Entrar (Pointer Lock)</button>
+              <button class="pill" id="museumReset">Reiniciar</button>
+            </div>
+          </div>
+          <div class="panel-bd">
+            <div class="museum" id="museumWrap">
+              <canvas id="museumCanvas"></canvas>
+              <div class="museum-hud">
+                <span class="chip">Corredor: 23 salas · LOD + frustum culling · .w3dvis</span>
+                <span class="chip" id="museumPos">Pos —</span>
+              </div>
+              <div class="museum-ctrl">
+                <div class="legend">Click para bloquear mouse — ESC para salir. Las puertas son portales a cada versión.</div>
+                <div style="display:flex;gap:6px">
+                  <span class="kbd">WASD</span><span class="kbd">SHIFT</span><span class="kbd">SPACE</span>
+                </div>
+              </div>
+            </div>
+            <p class="legend" style="margin-top:8px">Implementación fiel al repositorio Whisk3D-Editor: misma escena comparte el render y el tick de simulación que el editor. Aquí, cada sala usa clones prefab copy-on-write y streaming por páginas.</p>
+          </div>
+        </section>
+
+        <section id="view-weapons" class="panel" style="margin-top:14px;display:none">
+          <div class="panel-hd">
+            <h3>Laboratorio de Armas — evolución 1999→2002</h3>
+            <div style="display:flex;gap:8px">
+              <select id="weaponFilter" class="search" style="width:180px;padding:6px 10px">
+                <option value="all">Todas las categorías</option>
+                <option value="pistol">Pistolas</option>
+                <option value="rifle">Rifles</option>
+                <option value="smg">SMG</option>
+                <option value="sniper">Sniper</option>
+                <option value="shotgun">Escopetas</option>
+                <option value="grenade">Granadas</option>
+              </select>
+              <button class="pill active" id="weapons3dToggle">Vista 3D</button>
+            </div>
+          </div>
+          <div class="panel-bd">
+            <div id="weaponTimeline" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+            <div id="weaponsGrid" class="weapons-grid"></div>
+          </div>
+        </section>
+
+        <section id="view-maps" class="panel" style="margin-top:14px;display:none">
+          <div class="panel-hd">
+            <h3>Mapas — de_dust nace en Beta 4.0</h3>
+            <span class="badge">38 mapas documentados · BSP wireframe procedural</span>
+          </div>
+          <div class="panel-bd"><div id="mapsGrid" class="maps-grid"></div></div>
+        </section>
+
+        <section id="view-shooter" class="panel" style="margin-top:14px;display:none">
+          <div class="panel-hd">
+            <h3>Shooter Demo — GoldSrc feel (Wisk3D Audio + Física mínima)</h3>
+            <div style="display:flex;gap:8px">
+              <button class="pill" id="shooterEnter">Jugar</button>
+              <button class="pill" id="shooterWeapon">Arma: AK-47</button>
+            </div>
+          </div>
+          <div class="panel-bd">
+            <div class="museum" style="height:56vh;min-height:380px" id="shooterWrap">
+              <canvas id="shooterCanvas"></canvas>
+              <div class="hud" id="shooterHud">
+                <div class="hud-top">
+                  <div class="hud-box">HP 100 &nbsp;|&nbsp; AP 0</div>
+                  <div class="hud-box" id="shooterScore">T:0 CT:0 · click para bloquear</div>
+                </div>
+                <div class="cross"></div>
+                <div class="hud-btm">
+                  <div class="hud-box ammo" id="shooterAmmo">30 <small>/ 90</small></div>
+                  <div class="hud-box">$ <span id="shooterMoney">800</span></div>
+                </div>
+              </div>
+              <div class="museum-ctrl">
+                <div class="legend">Bot izquierda dispara · R recarga · 1 AK 2 AWP 3 Deagle 4 M4 · Shift corre</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-compare" class="panel" style="margin-top:14px;display:none">
+          <div class="panel-hd">
+            <h3>Comparador — qué cambió entre versiones</h3>
+            <div style="display:flex;gap:8px">
+              <select id="cmpA" class="search" style="width:160px;padding:6px 10px"></select>
+              <span style="align-self:center;color:var(--cs-muted)">vs</span>
+              <select id="cmpB" class="search" style="width:160px;padding:6px 10px"></select>
+            </div>
+          </div>
+          <div class="panel-bd"><div class="compare"><table class="cmp-table" id="cmpTable"></table></div></div>
+        </section>
+
+        <footer class="foot">
+          <div>
+            Port a Wisk3D por <strong>ShadowNigth</strong> — basado en Whisk3D Core/Editor (Dante Leoncini) y <a href="https://github.com/Ch0wW/counterstrike-betas" target="_blank">Ch0wW/counterstrike-betas</a>.
+            Archivos extraídos sin modificación. Faltantes preservados como memoria.
+          </div>
+          <div style="display:flex;gap:8px">
+            <a href="wisk.json" target="_blank">wisk.json</a>
+            <a href="project.w3d" target="_blank">project.w3d</a>
+            <a href="docs/ARCHITECTURE.md" target="_blank">Arquitectura</a>
+          </div>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0a0a0f"/>
+  <circle cx="32" cy="32" r="22" fill="url(#g)"/>
+  <defs><radialGradient id="g" cx="0.3" cy="0.2"><stop offset="0%" stop-color="#ffd27a"/><stop offset="55%" stop-color="#ff7a00"/><stop offset="100%" stop-color="#5a1a00"/></radialGradient></defs>
+  <text x="32" y="38" text-anchor="middle" font-family="system-ui" font-weight="900" font-size="18" fill="#000">W3D</text>
+</svg>

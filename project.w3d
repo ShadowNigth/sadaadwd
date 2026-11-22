@@ -1,0 +1,46 @@
+# Whisk3D / Wisk3D Project Container — Counter-Strike Betas
+# Este archivo es el contenedor de proyecto de un solo archivo que Whisk3D usa.
+# En web, se interpreta como manifiesto; en editor nativo se empaqueta binario.
+[project]
+name=counterstrike-betas
+title=Counter-Strike Betas — Museo Wisk3D
+version=1.0.0
+engine=wisk3D
+core=3.1.0
+
+[window]
+width=1280
+height=720
+fullscreen=false
+vsync=true
+
+[renderer]
+backend=webgl2
+msaa=4
+shadows=true
+lightprobes=true
+reflections=true
+raytrace=false
+
+[resources]
+pak0=res/pak0.pak
+wad=res/*.wad
+bsp=res/maps/*.bsp
+vis=res/vis/*.w3dvis
+
+[scripts]
+main=scripts/lua/main.lua
+player=scripts/lua/player.lua
+weapons=scripts/lua/weapons/*.lua
+
+[audio]
+backend=openal
+hls_mixing=true
+
+[physics]
+gravity=-800
+units=GoldSrc
+
+[network]
+protocol=w3dNet
+tickrate=100

@@ -1,0 +1,33 @@
+{
+  "project": "counterstrike-betas",
+  "title": "Counter-Strike Betas — Museo Wisk3D",
+  "subtitle": "Port completo del archivo Ch0wW/counterstrike-betas (1999-2002)",
+  "version": "1.0.0",
+  "engine": "wisk3D",
+  "coreVersion": "3.1.0",
+  "api": "w3dEngine",
+  "language": "es-AR",
+  "description": "Museo interactivo 3D que preserva y reinterpreta las 23 versiones oficiales de Counter-Strike pre-1.6 (Beta 1.0 → 1.5 Retail) sobre la abstracción Whisk3D/Wisk3D: pipeline unificado, materiales, LOD, VIS por triángulo, scripting Lua, audio y física mínima.",
+  "author": "ShadowNigth — port a Wisk3D",
+  "original": "https://github.com/Ch0wW/counterstrike-betas",
+  "license": "Preservación — archivos extraídos sin modificación",
+  "modes": ["timeline", "museum", "weapon_lab", "map_viewer", "shooter"],
+  "platforms": ["web", "desktop", "android"],
+  "renderer": {
+    "backend": "WebGL2 / OpenGL ES 1.1 compat",
+    "features": ["w3dEngine::LoadTexture", "w3dEngine::DecodeImage", "VBO", "stencil mirror", "lightprobes", "shadow mix", "raytrace (Vulkan opt)"]
+  },
+  "structure": {
+    "res": "Recursos empaquetados (.w3d, .w3dvis, .pak, .wad, .bsp)",
+    "scripts": "Lógica en Lua (player, weapons, game)",
+    "src/engine": "Abstracción w3dEngine en TypeScript + Three.js",
+    "src/data": "Catálogo fiel de las 23 ramas + faltantes",
+    "tools": "Extractor y validador de branches"
+  },
+  "branches": 23,
+  "coverage": "100% — todas las versiones documentadas, incluidas las 6 faltantes marcadas como MISSING",
+  "hl_versions": {
+    "1.0.1.6": "Beta 1.0 → 6.2",
+    "1.1.1.0": "Beta 6.5 → Retail 1.5"
+  }
+}
