@@ -8,7 +8,10 @@ export default defineConfig({
     cors: true,
     headers: {
       'X-Frame-Options': 'ALLOWALL'
-    }
+    },
+    hmr: { clientPort: 443 },
+    // @ts-ignore — e2b preview host allowlist
+    allowedHosts: true,
   },
   preview: {
     host: '0.0.0.0',
